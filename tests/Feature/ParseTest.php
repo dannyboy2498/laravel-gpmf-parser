@@ -2,25 +2,26 @@
 
 class ParseTest extends BaseTest
 {
-    public function can_create_singular_KLV_from_GPMFStream()
+
+    public function can_parse_first_container_header_in_hero7_binary_file_as_empty_nest()
     {
-        $fhandle = $binaries['sample_binary.bin'];
+        // Arrange
+        $fhandle = $binaries['sample_hero7.bin'];
     
         $stream = new GPMF_Stream($fhandle);
-    
-        $key = "Test";
-        $type = 'b';
-        $size = 1;
-        $repeat = 1;
+        $contents = $stream->readNext();
+        $length = $contents['size']*['repeat'];
+
+        $expected = new KLVNest("DEVC", $length);
+
+        // Act
         
-        $expected = new KLVBase($key, $type, $size, $repeat);
-            
-        $kvl = $stream->readNext();
-    
-    }
+        // Assert
+        $this->assertEquals();
 
-    public function can_create_create_nested_KVL_from_GPMFStream()
-    {
 
     }
+
+    public function ;
+
 }

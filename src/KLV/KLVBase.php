@@ -60,8 +60,10 @@ class KLVBase
 
         $item = new $class($key, $type, $size, $repeat);
 
-        $item->decodePayload($value_binary);
+        $item->decodeFromBinaryStream($value_binary);
 
         return $item;
     }
+
+    
 }

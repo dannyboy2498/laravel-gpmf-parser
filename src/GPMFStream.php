@@ -14,6 +14,7 @@ class GPMFStream
         {
             fopen('php://temp', 'wb+');
         }
+        return $this;
     }
 
     private function __destruct()
@@ -41,26 +42,22 @@ class GPMFStream
     
     /* Navigate through GMPF Stream **/
 
+    public function offset() { return ftell($this->handle); }
+    public function rewind() { rewind($this->handle); }
+    
+
     public function readNext()
     {
         // if nested only read header
         $header_contents = readHeader();
         if ($header_contents == null) return null;
-        $value_binary = readValue();
+        $value_binary = null;
+        if ($header_contents['type'] != null)
+            $value_binary = readValue($header_contents['size']*$header_contents['repeat']);
         return array($header_contents['key'], $header_contents['type'], $header_contents['size'], $header_contents['repeat'], $value_binary);
     }
 
-    public function getSamples()
-    {
-
-    }
-
-    public function scale()
-    {
-
-    }
-
-    private function readHeader()
+    public function readHeader()
     {
         $bin_string = fread($this->stream, 8);
         if (strlen($bin_string) != 8) return null;
@@ -69,9 +66,11 @@ class GPMFStream
         return $contents;
     }
 
-    public function readValue($type, $size, $repeat, ?int $scale = 1)
+    public function readValue($length)
     {
-
+        $padding = $length % 4; // 32 bit align the stream
+        $bin_string = fread($this->stream, $length+$padding);
+        return $bin_string;
     }
 
     public function findNextKey($key)

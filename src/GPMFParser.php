@@ -3,61 +3,30 @@
 namespace Dan\GPMF;
 
 use Dan\GPMF\KLVBase;
+use Dan\GPMF\GPMFStream;
 
 class GPMFParser 
 {
-    //protected ;
-    
-    private function __construct()
+    protected $stream;
+    protected $tree;
+
+    private function __construct(GPMFStream $stream)
     {
-        // $this->stream = $stream;
+        $this->stream = $stream;
+        $this->tree = null;
     }
 
-    public function getClassFromKey()
-    {
-        switch ($type)
-        {
-            case 'DEVC': return;
-            case 'STRM': return;
-        }
-    }
-
-    public function covertToPHPType($type)
-    {
-        switch ($type)
-        {
-            case 'b': // single byte signed int8_t
-            case 'B': // single byte unsigned uint_t
-            case 'c': // single byte char
-            case 'd': // 8 byte double
-            case 'f': // 4 byte float
-            case 'F': // 4 byte char key "FourCC"
-            case 'G': // 16 byte ID (like UUID)
-            case 'j': // 8 byte signed int64_t
-            case 'J': // 8 byte unsigned uint64_t
-            case 'l': // 8 byte 
-            case 'L': //
-            case 'q': //
-            case 'Q': //
-            case 's': //
-            case 'S': //
-            case 'U': // char[16] UTC time format
-            case '?': // complex read preceeding?
-            case null: // nested metadata
-        }
-    }
-
-    public function decodeGPMFStream($stream) // iteratively
+    public function treeFromGPMFStream(GPMFStream $stream) // iteratively
     {
         $tree = new KLVNest("FILE", $stream->getLength());
         $stack = array();
         $stack_length = array();
         $offset_last = $stream->offset();
         $current_nest = $tree;
+
         while (!feof($stream))
         {
-            $contents = $stream->readNext();
-            $item = KLVBase::decodeFromGPMFStream($contents);
+            $item = KLVBase::decodeFromGPMFStream($stream);
             
             if (get_class($current_nest) == 'KLVNest')
                 $current_nest->addChild($item);
@@ -76,5 +45,17 @@ class GPMFParser
             }
             $offset_last = $stream->offset();
         }
+
+        return $tree;
+    }
+
+    public function treeToGPMFStream()
+    {
+        //
+    }
+
+    public function exportTreeAsCollection()
+    {
+        // 
     }
 }
