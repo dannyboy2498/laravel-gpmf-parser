@@ -13,7 +13,7 @@ class ACCL extends KLVBase
 
     protected bool $isScaled;
 
-    public function decodeFromBinaryString($string)
+    public function decodeValueFromBinaryString($string)
     {
         for ($i=0;$i<$this->repeat;$i++)
         {

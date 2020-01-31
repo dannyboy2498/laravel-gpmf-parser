@@ -1,9 +1,33 @@
 <?php
 
+namespace Dan\GPMF\Tests;
+
+use phpDocumentor\Reflection\Types\Void_;
+use Dan\GPMF\Tests\BaseTest;
+use Tightenco\Collect\Support\Collection;
+
 class StreamTest extends BaseTest
 {
+    /** @test */    
+    public function gpmf_stream_only_reads_header_when_reading_next_klv_for_nested_klv()
+    {
+        // Arrange
+        $fhandle = $binaries['hero7_sample.bin'];
+        $stream = new GPMF_Stream($fhandle);
+        $stream->readHeader();
+        $expected = $stream->offset();
+        $stream->rewind();
+
+        // Act
+        $stream->readNext();
+
+        // Assert 
+        $this->assertEquals($expected, $stream->offset());
+        
+    }
+
     /** @test */
-    public function gpmfstream_can_correctly_reads_first_container_header_in_hero7_binary_file()
+    public function gpmfstream_can_correctly_parse_first_container_header_in_hero7_binary_file()
     {
         // Arrange
         $expected_contents = array(
@@ -12,7 +36,7 @@ class StreamTest extends BaseTest
             'size' => 1,
             'repeat' => 4244,
         );
-        $fhandle = $binaries['sample_hero7.bin'];
+        $fhandle = $binaries['hero7_sample.bin'];
         
         // Act
         $stream = new GPMF_Stream($fhandle);
@@ -22,84 +46,75 @@ class StreamTest extends BaseTest
         $this->assertEquals($expected_contents, $contents);
     }
 
-    public function gpmf_stream_pointer_does_not_read_value_for_nested_klv()
+    public function gpmf_stream_seeks_in_32bit_alignment()
     {
         // Arrange
-        $fhandle = $binaries['sample_hero7.bin'];
+        $fhandle = $binaries['hero7_sample.bin'];
         $stream = new GPMF_Stream($fhandle);
+        $expected = array();
 
-        $expected = stream_get_contents($stream);
-
-        $
-        rewind($stream);
-
-        // act
-
-        // assert check everything is working
-        $this->assertEquals($expected, $stream->getPosition());
+        // Act & Assert
+        while (!$stream->EOS())
+        {
+            $stream->skipNext();
+            $this->assertEquals(0,$stream->offset() % 4);
+        }
         
     }
-    public function gpmfstream_can_determine_valid_nested_KLV_from_binary_file()
-    {
-        // arrange
-        $fhandle = $binaries['sample_nested.bin'];
 
+    public function gpmf_stream_reads_in_32bit_alignment()
+    {
+        // Arrange
+        $fhandle = $binaries['hero7_sample.bin'];
         $stream = new GPMF_Stream($fhandle);
+        $expected = array();
 
-        $expected = stream_get_contents($stream);
-        rewind($stream);
-
-        // act
-        $stream->validate();
-
-        // assert check everything is working
-        $this->assertEquals($expected, stream_get_contents($stream));
+        // Act & Assert
+        while (!$stream->EOS())
+        {
+            $stream->readNext();
+            $this->assertEquals(0,$stream->offset() % 4);
+        }
+        
     }
 
-    /* @test **/
-    public function stream_can_insert_singular_KVL_into_file()
+    /*
+    public function gpmf_stream_increments_nest_depth_level_when_seeking_past_klv_nest_header()
     {
-        // arrange
-        $fihandle = $binaries['sample_singular.bin'];
-        $fohandle = $binaries['sample_empty.bin'];
+        // Arrange
+        $fhandle = $binaries['hero7_sample.bin'];
+        $stream = new GPMF_Stream($fhandle);
+        $level_last = 0;
+        $found_nest = false;
+        while (!$stream->EOS() || !$found_nest)
+        {
+            if ($stream->getNextType() === null) { $found_nest = true; }
+        }
 
-        $rstream = new GPMF_Stream($fihandle);
-        $expected = stream_get_contents($rstream);
-        rewind($rstream);
+        // Act
+        $stream->skipNext();
 
-        // act
-        $rstream = new GPMF_Stream($fihandle);
-
-        $wstream = new GPMF_Stream($fohandle);
-
-        $wstream->loadFromStream($rstream);
-
-        // assert
-        rewind($fohandle);
-        $this->assetEquals($expected, stream_get_contents($fohandle));
+        // Assert
+        $this->assertEquals(1,$stream->current_nest_level);
     }
 
-    /* @test **/
-    public function stream_can_insert_nested_KVL_into_file()
+    public function gpmf_stream_decrements_nest_depth_level_when_seeking_past_klv_nest_value_end()
     {
-        // arrange
-        $fihandle = $binaries['sample_nested.bin'];
-        $fohandle = $binaries['sample_empty.bin'];
+        // Arrange
+        $fhandle = $binaries['hero7_sample.bin'];
+        $stream = new GPMF_Stream($fhandle);
+        $found_nest = false;
+        while (!$stream->EOS() || !$found_nest)
+        {
+            if ($stream->getNextType() === null) { $found_nest = true; }
+        }
+        $level_last = 1;
 
-        $rstream = new GPMF_Stream($fihandle);
-        $expected = stream_get_contents($rstream);
-        rewind($rstream);
+        // Act
+        $stream->skipNest();
 
-        // act
-        $rstream = new GPMF_Stream($fihandle);
-
-        $wstream = new GPMF_Stream($fohandle);
-
-        $wstream->loadFromStream($rstream);
-
-        // assert
-        rewind($fohandle);
-        $this->assetEquals($expected, stream_get_contents($fohandle));
+        // Assert
+        $this->assertEquals(0,$stream->current_nest_level);
     }
+    */
 }
-

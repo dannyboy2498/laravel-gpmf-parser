@@ -8,7 +8,7 @@ class KLVNest extends KLVBase
 {
     protected $children = array();
 
-    private function __construct($key, $length)
+    public static function instantiateFromKeyLength($key, $length)
     {
         parent::__construct($key, null, 1, $length);
     }

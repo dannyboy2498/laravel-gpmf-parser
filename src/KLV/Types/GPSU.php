@@ -6,7 +6,7 @@ class GPSU extends KLVBase
 {
     protected $value; // date-time
     
-    public function decodeFromBinaryString($string)
+    public function decodeValueFromBinaryString($string)
     {
         $date = '20' . unpack('a16', $string)[1];
         $this->value = date_create_from_format('YmdGis.u', $date);

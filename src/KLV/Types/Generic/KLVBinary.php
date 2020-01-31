@@ -4,11 +4,11 @@ namespace Dan\GPMF\KLV\Types;
 
 use Dan\GPMF\KLV\KLVBase;
 
-class KLVBinary extends KLVBase
+class KLVBinary extends KLVBase // unparsed
 {
     protected $value;
 
-    public function decodeFromBinaryString($binary_string)
+    public function decodeValueFromBinaryString($binary_string)
     {
         $this->value = $binary_string;
     }

@@ -2,12 +2,12 @@
 
 namespace Dan\GPMF\KLV\Types;
 
-class KLVSingular extends KLVBase
+class KLVSingular extends KLVBase // single payload
 {
     protected $value;
     protected $format;
 
-    public function decodeFromBinaryString($string)
+    public function decodeValueFromBinaryString($string)
     {
         setFormatFromType($this->$type);
         for ($i=0;$i<$this->repeat;$i++)

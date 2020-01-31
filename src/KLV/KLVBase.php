@@ -28,6 +28,18 @@ class KLVBase
         return $this->size * $this->repeat;
     }
 
+    public static function getRecognisedTypes()
+    {
+        $types = array(
+            "DEVC",
+            "STRM",
+            "GPS5",
+            "GPSU",
+            "GPSP",
+            "ACCL"
+        );
+    }
+
     private static function getClassFromKey($key)
     {
         switch ($key)
@@ -53,14 +65,14 @@ class KLVBase
         }
     }
 
-    public static function decodeFromStream($stream)
+    public static function createFromGPMFStream($stream)
     {
         [$key, $type, $size, $repeat, $value_binary] = $stream->readNext();
         $class = getClassFromKey($key);
 
         $item = new $class($key, $type, $size, $repeat);
 
-        $item->decodeFromBinaryStream($value_binary);
+        $item->decodeValueFromBinaryString($value_binary);
 
         return $item;
     }
